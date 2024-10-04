@@ -1,0 +1,58 @@
+import requests
+import pandas as pd
+from datetime import datetime
+#from prettytable import PrettyTable 
+
+def get_weather():
+    url = "https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/16/lat/58/data.json"
+    response = requests.get(url)
+    json_data = response.json()
+    timeSeries = json_data["timeSeries"]
+    timeSeries_24 = timeSeries[2:26]
+    temp = []
+    date_time = []
+    rain_or_snow = []
+    weather_dict = {}
+    for i in range(len(timeSeries_24)):
+        date_time.append(timeSeries_24[i]["validTime"])
+        for item in timeSeries_24[i]["parameters"]:
+            if item["name"] == "t":
+                temp.append(item["values"][0])
+        for item in timeSeries_24[i]["parameters"]:
+            if item["name"] == "pcat":
+                if item["values"][0] == 0:
+                    rain_or_snow.append(False)
+                else:
+                    rain_or_snow.append(True)
+        provider = "SMHI"
+        referenceTime = json_data["referenceTime"]
+        longitude = json_data["geometry"]["coordinates"][0][0]
+        latitude = json_data["geometry"]["coordinates"][0][1]
+    weather_dict["datetime"] = date_time
+    weather_dict["Temperature"]= temp
+    weather_dict["RainOrSnow"]= rain_or_snow
+    weather_dict["Provider"]= provider
+    weather_dict["Created"]= referenceTime
+    weather_dict["Longitude"]= longitude
+    weather_dict["Latitude"]= latitude
+    return weather_dict
+
+def dict_to_df_smhi(dict):
+    df = pd.DataFrame(dict)
+    df["Created"] = pd.to_datetime(df["Created"])
+    df["Created"] = df["Created"].dt.tz_localize(None) # Remove timezone from columns
+    df["datetime"] = pd.to_datetime(df["datetime"])
+    df["Date"] = df["datetime"].dt.date #using dt.date attribute
+    df["Time"] = df["datetime"].dt.time
+    del df["datetime"]
+    df = df[["Provider", "Created", "Date", "Time", "Longitude", "Latitude", "Temperature","RainOrSnow"]]
+    return df
+
+def df_to_excel(df):
+    #def df_to_excel(df, provider):
+    df.to_excel(f"/Users/john.sandsjo/Documents/STI/Python/Getting Started/python1/Inlämningsuppgift/data/SMHI_forecastTEST.xlsx")  
+
+def show_weather(df):
+    pd.read_excel("/Users/john.sandsjo/Documents/STI/Python/Getting Started/python1/Inlämningsuppgift/data/SMHI_data.xlsx")
+    print(f"Prognos från {df.loc[0,"Provider"]} {df.loc[0,"Date"]}:")
+    print(df[["Time", "Temperature","RainOrSnow"]])
