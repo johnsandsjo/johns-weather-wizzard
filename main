@@ -1,0 +1,26 @@
+import functions as fu
+meny = {
+    "1." : "Hämta senaste data från SMHI",
+    "2." : "Skriv ut senaste prognosen",
+    "9." : "Avsluta programmet"
+}
+print("\nJohn's weather wizzard\n")
+
+choice = 1
+while choice != 9: 
+    for key, values in meny.items():
+        print(f"{key} {values}")
+    choice = input("\nVälj ett alternativ från menyn: ")
+    if choice == "1":
+        #get_weather(SMHI)
+        dict = fu.get_weather()
+        df = fu.dict_to_df_smhi(dict)
+        fu.df_to_excel(df)
+    elif choice == "2":
+        fu.show_weather(fu.dict_to_df_smhi(fu.get_weather()))
+        #show_weather(SMHI)
+    elif choice == "9":
+        print("Porgrammet avslutas")
+        break
+    else:
+        print("Du angav ett felaktivt alternativ, försök igen")
