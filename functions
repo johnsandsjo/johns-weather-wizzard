@@ -56,3 +56,6 @@ def show_weather(df):
     pd.read_excel("/Users/john.sandsjo/Documents/STI/Python/Getting Started/python1/Inlämningsuppgift/data/SMHI_data.xlsx")
     print(f"Prognos från {df.loc[0,"Provider"]} {df.loc[0,"Date"]}:")
     print(df[["Time", "Temperature","RainOrSnow"]])
+
+
+#afjsifheirlufheilruhve
